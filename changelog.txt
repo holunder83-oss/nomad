@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.11
+Date: 2026-11-22
+  Features:
+    - New research "Space suit: flight-rated" (2000 × red/green/blue/space/agricultural, after agricultural science and carbon fiber): you can step out of the hub and stay outside while the ship is flying. Careful at the front edge: asteroids can kill you there.
+    - Unstable scrap can go straight into a recycler (same results as normal scrap), unlocked with "Scrap vein".
+  Balancing:
+    - Unstable scrap from the Fulgora scrap avalanche now explodes after 45 seconds instead of 2 minutes.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.10
 Date: 2026-11-22
   Features:

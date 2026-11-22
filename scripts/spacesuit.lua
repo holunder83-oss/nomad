@@ -1,6 +1,7 @@
 -- Raumanzug: Nach der Forschung "Raumanzug" kann der Spieler auf dem Schiff aus dem Hub aussteigen
 -- und mit einer Anzug-Figur herumlaufen, die ueber Gebaeude schwebt (Knopf oben links). Nur, solange das Schiff
 -- im Orbit steht: Fliegt das Schiff los, kommen alle, die draussen sind, automatisch zurueck in den Hub.
+-- Mit der Forschung "Raumanzug: Flugtauglich" (1.0.11) auch im Flug.
 
 local mod_gui = require("mod-gui")
 local achievements = require("scripts.achievements")
@@ -8,6 +9,7 @@ local achievements = require("scripts.achievements")
 local suit = {}
 
 local TECH = "ncs-spacesuit"
+local FLIGHT_TECH = "ncs-spacesuit-flight" -- seit 1.0.11: auch im Flug draussen
 local BUTTON = "ncs_spacesuit_button"
 local SUIT_CHARACTER = "ncs-spacesuit-character" -- schwebt ueber Gebaeude (prototypes/spacesuit-character.lua)
 
@@ -53,8 +55,11 @@ local function match_view(player, surface, position)
   return player.surface == surface
 end
 
+-- Aussteigen/Draussenbleiben erlaubt: im Orbit immer, im Flug erst mit der Forschung "Raumanzug: Flugtauglich"
 local function in_orbit(platform)
-  return platform.space_location ~= nil
+  if platform.space_location ~= nil then return true end
+  local tech = platform.force.technologies[FLIGHT_TECH]
+  return tech ~= nil and tech.researched
 end
 
 -- nil (kein Knopf), "inside" oder "outside"

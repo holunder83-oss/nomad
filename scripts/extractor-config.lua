@@ -36,7 +36,7 @@ config.GUARANTEE = {RADIUS = 400, STEP = 400, MAX_RADIUS = 1200, MIN_DISTANCE = 
 -- 10 -> 240/s: rund 26 000 Schrott pro Lauf, am Schluss gut 4 Turbo-Baender (1.24.0: "viel mehr Schrott").
 -- Es ist instabiler Schrott: explodiert nach SPOIL_SECONDS, ausser er wird vorher in einer Montagemaschine
 -- stabilisiert (Rezept ncs-stabilize-scrap). Ein Kisten-Ring um den Extraktor reicht also nicht.
-config.AVALANCHE = {item = "ncs-unstable-scrap", START = 10, END = 240, FAIL_SECONDS = 5, SPOIL_SECONDS = 120}
+config.AVALANCHE = {item = "ncs-unstable-scrap", START = 10, END = 240, FAIL_SECONDS = 5, SPOIL_SECONDS = 45} -- 1.0.11: 45 s statt 120 (Wunsch des Users)
 
 -- Vulcanus, Kuehlung: Der Extraktor zieht Wasser und gibt STEAM_PER_WATER mal so viel heissen Dampf (500 Grad) ab
 -- (seit 1.24.0 3, User wollte mehr Dampf). Der Wasserbedarf steigt waehrend des Laufs stetig von START auf END pro Sekunde. Fehlt Wasser oder ist der Dampf-Ausgang voll,

@@ -241,6 +241,22 @@ table.insert(prototypes_list,
   results = {{type = "item", name = "scrap", amount = 10}}
 })
 
+-- Seit 1.0.11 (Wunsch des Users): instabiler Schrott geht auch direkt in den Recycler, gleiche Ergebnisse wie
+-- normaler Schrott (Kopie von "scrap-recycling").
+local scrap_recycling = data.raw.recipe["scrap-recycling"]
+if scrap_recycling then
+  local recipe = table.deepcopy(scrap_recycling)
+  recipe.name = "ncs-unstable-scrap-recycling"
+  recipe.localised_name = {"recipe-name.ncs-unstable-scrap-recycling"}
+  recipe.icons = unstable_icons
+  recipe.icon = nil
+  recipe.order = "a[scrap]-c[recycling]-ncs"
+  recipe.enabled = false
+  recipe.auto_recycle = false
+  recipe.ingredients = {{type = "item", name = config.AVALANCHE.item, amount = 1}}
+  table.insert(prototypes_list, recipe)
+end
+
 local stone = data.raw.resource["stone"]
 for _, core in pairs(config.cores) do
   local product = data.raw.item[core.product]
@@ -324,6 +340,9 @@ for _, core in pairs(config.cores) do
     table.insert(effects, 1, {type = "nothing", icons = resource_icons, effect_description = {"ncs-tech.extract", {"item-name." .. core.product}}})
     if core.challenge == "avalanche" then
       table.insert(effects, 2, {type = "unlock-recipe", recipe = "ncs-stabilize-scrap"})
+      if data.raw.recipe["ncs-unstable-scrap-recycling"] then
+        table.insert(effects, 3, {type = "unlock-recipe", recipe = "ncs-unstable-scrap-recycling"})
+      end
     end
     technology.effects = effects
     technology.prerequisites = technology.prerequisites or {}
