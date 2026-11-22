@@ -20,6 +20,7 @@ local boost = require("scripts.thruster-boost")
 local start_research = require("scripts.start-research")
 local capsule_cargo = require("scripts.capsule-cargo")
 local planet_rules = require("scripts.planet-rules")
+local thud = require("scripts.thud-compat")
 local extractor = require("scripts.extractor")
 local orbital_cannon = require("scripts.orbital-cannon")
 local robot_shells = require("scripts.robot-shells")
@@ -72,8 +73,28 @@ local START_AMMO = {chest = "steel-chest", chests = 2, item = "piercing-rounds-m
 
 local function get_ship(force)
   local platform = storage.ships[force.index]
-  if platform and platform.valid then return platform end
+  if platform and platform.valid then
+    storage.ship_names[force.index] = platform.name -- umbenannt? (fuer T.H.U.D unten)
+    return platform
+  end
+  -- T.H.U.D (1.0.10): Landen loescht die Plattform, Abheben legt eine neue mit gleichem Namen an. Die wird wieder
+  -- das Mutterschiff.
+  local name = storage.ship_names[force.index]
+  if name then
+    for _, other in pairs(force.platforms) do
+      if other.valid and other.name == name then
+        storage.ships[force.index] = other
+        storage.ship_built[other.index] = true -- nicht nochmal den Start-Blueprint bauen
+        return other
+      end
+    end
+  end
   return nil
+end
+
+-- Das Mutterschiff der Force ist mit T.H.U.D gelandet (oder geloescht): dann kein neues Startschiff verschenken.
+local function ship_landed(force)
+  return thud.active() and storage.ship_names[force.index] ~= nil and get_ship(force) == nil
 end
 
 -- planet_name: where the ship starts, default Nauvis. A force that has its own copy of Nauvis starts above that.
@@ -86,6 +107,7 @@ local function create_ship(force, planet_name)
   end
   platform.apply_starter_pack(true)
   storage.ships[force.index] = platform
+  storage.ship_names[force.index] = platform.name
   -- A force created after the game started has not had the start research yet (no-op for one that has)
   start_research.apply(force)
   return platform
@@ -198,6 +220,7 @@ local function planet_under(player)
 end
 
 local function send_player_to_ship(player)
+  if ship_landed(player.force) then return true end -- bleibt, wo er ist (Mutterschiff steht auf einem Planeten)
   local platform = get_ship(player.force) or create_ship(player.force, planet_under(player))
   if not platform then return true end -- nichts mehr zu tun, Fehler steht im Log
   if not build_ship(platform) then return false end -- naechsten Tick nochmal versuchen
@@ -288,6 +311,10 @@ end
 
 local function init_storage()
   storage.ships = storage.ships or {}
+  storage.ship_names = storage.ship_names or {}
+  for index, platform in pairs(storage.ships) do
+    if platform.valid and not storage.ship_names[index] then storage.ship_names[index] = platform.name end
+  end
   storage.ship_built = storage.ship_built or {}
   storage.pending_players = storage.pending_players or {}
   storage.surface_planet = storage.surface_planet or {}
@@ -401,6 +428,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
   extractor.on_gui_opened(event)
   capsule_cargo.on_gui_opened(event, is_capsule)
 end)
+script.on_event({defines.events.on_player_built_tile, defines.events.on_robot_built_tile}, thud.on_built_tile)
 script.on_event(defines.events.on_gui_checked_state_changed, capsule_cargo.on_gui_checked_state_changed)
 script.on_event(defines.events.on_entity_settings_pasted, function(event)
   capsule_cargo.on_entity_settings_pasted(event, is_capsule)
@@ -520,6 +548,11 @@ script.on_event(defines.events.on_player_changed_surface, achievements.on_player
 script.on_event(defines.events.on_script_trigger_effect, achievements.on_script_trigger_effect)
 script.on_nth_tick(3600, achievements.check)
 script.on_nth_tick(60, function(event)
+  -- Mutterschiff nach dem Abheben mit T.H.U.D wiederfinden (Rueckholstrahl, Info-Fenster lesen storage.ships)
+  for index in pairs(storage.ship_names) do
+    local force = game.forces[index]
+    if force then get_ship(force) end
+  end
   suit.check_all()
   recall.update_all()
   capacity.process_pending()
@@ -539,6 +572,7 @@ remote.add_interface("nomad",
 {
   create_mothership = function(force_name, planet_name)
     local force = game.forces[force_name or "player"]
+    if ship_landed(force) then return nil end
     local platform = get_ship(force) or create_ship(force, planet_name)
     if platform then build_ship(platform) end
     return platform
@@ -566,6 +600,7 @@ remote.add_interface("nomad",
     local force = game.forces[force_name]
     if not force then return end
     if storage.ships then storage.ships[force.index] = nil end
+    if storage.ship_names then storage.ship_names[force.index] = nil end
     achievements.reset_force(force)
     ending.reset_force(force)
   end,

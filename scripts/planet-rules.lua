@@ -6,7 +6,7 @@
 local planet_rules = {}
 
 -- Typen der betroffenen Fabriken (fuer die Ereignis-Filter)
-local TYPES = {"assembling-machine", "furnace", "beacon"}
+local TYPES = {"assembling-machine", "furnace", "beacon", "lab"}
 
 planet_rules.FILTER = {}
 for _, type_name in pairs(TYPES) do
@@ -36,6 +36,34 @@ local function blocking_tech(entity)
   if tech and tech.researched then return nil end
   return tech_name
 end
+
+-- Mit T.H.U.D (1.0.10): Labore, die Nomad nur im All erlaubt (prototypes/lab-rules.lua), sonst nil
+local lab_cache
+local function script_labs()
+  if lab_cache == nil then
+    local mod_data = prototypes.mod_data["ncs-lab-rules"]
+    lab_cache = mod_data and mod_data.data.labs or false
+  end
+  return lab_cache
+end
+
+-- Boden eines mit T.H.U.D gelandeten Schiffs (auch gepflastert: dann liegt er als verborgene Kachel darunter).
+-- Dort gilt alles wie auf dem Schiff (Wunsch des Users, 1.0.10).
+local LANDED_FLOOR = "thud-landed-foundation"
+local landed_floor_exists
+local function on_landed_floor(entity)
+  if landed_floor_exists == nil then landed_floor_exists = prototypes.tile[LANDED_FLOOR] ~= nil end
+  if not landed_floor_exists then return false end
+  local box = entity.bounding_box
+  local area = {{box.left_top.x + 0.01, box.left_top.y + 0.01}, {box.right_bottom.x - 0.01, box.right_bottom.y - 0.01}}
+  local tiles = entity.surface.find_tiles_filtered{area = area}
+  if not tiles[1] then return false end
+  for _, tile in pairs(tiles) do
+    if tile.name ~= LANDED_FLOOR and tile.hidden_tile ~= LANDED_FLOOR then return false end
+  end
+  return true
+end
+planet_rules.on_landed_floor = on_landed_floor
 
 local function notify(player, entity, tech_name)
   if not (player and player.valid) then return end
@@ -89,6 +117,21 @@ function planet_rules.on_built(event)
   -- Nur Bauen durch Spieler und Roboter, nicht Skripte anderer Mods
   if not (event.player_index or event.robot) then return end
   local player = event.player_index and game.get_player(event.player_index)
+  local surface = entity.surface
+  if surface.platform or not surface.planet then return end
+  if on_landed_floor(entity) then return end
+
+  local labs = script_labs()
+  local name = entity.type == "entity-ghost" and entity.ghost_name or entity.name
+  if labs and labs[name] then
+    if player and player.valid then
+      local text = {"ncs-planet-rules.lab", "[entity=" .. name .. "]"}
+      player.create_local_flying_text{text = text, position = entity.position, create_at_cursor = true}
+      player.print(text)
+    end
+    remove(event, entity, player)
+    return
+  end
 
   if space_also_blocked(entity) then
     if player and player.valid then

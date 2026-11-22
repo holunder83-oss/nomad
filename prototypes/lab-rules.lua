@@ -12,12 +12,21 @@ local space_only =
   {property = "gravity", max = 0}
 }
 
+-- Mit T.H.U.D (1.0.10): Labore duerfen auch auf den Boden gelandeter Schiffe. Das laesst sich nicht als
+-- Bedingung ausdruecken, deshalb bekommen die Labore keine Bedingung, und scripts/planet-rules.lua gibt sie auf
+-- Planeten ausserhalb von gelandetem Boden zurueck (Liste in mod-data "ncs-lab-rules").
+local thud = mods["Thud"] ~= nil
+local thud_conditions = thud and data.raw["mod-data"]["thud-surface-conditions"]
+local script_labs = {}
+
 local exempt = {}
 for name, lab in pairs(data.raw["lab"]) do
   -- Bedingungen ausser Druck/Schwerkraft bleiben (das Biolabor verlangt z. B. Druck 1000 = Nauvis,
   -- das wuerde sich mit "nur im All" ausschliessen und wird deshalb ersetzt).
   local conditions = {}
-  for _, condition in pairs(lab.surface_conditions or {}) do
+  -- Mit T.H.U.D sind die Bedingungen schon abgenommen und stehen in dessen mod-data
+  local original = lab.surface_conditions or (thud_conditions and thud_conditions.data[name]) or {}
+  for _, condition in pairs(original) do
     if condition.property ~= "pressure" and condition.property ~= "gravity" then
       table.insert(conditions, condition)
     end
@@ -25,12 +34,22 @@ for name, lab in pairs(data.raw["lab"]) do
 
   if not surface_util.allowed_in_space(conditions) then
     table.insert(exempt, name)
+  elseif thud then
+    -- T.H.U.D hat die Bedingungen schon abgenommen und legt Labore still, deren alte Bedingungen nicht passen
+    -- (das Biolabor verlangte Druck 1000, haette also im All stillgestanden). Nomad regelt Labore selbst.
+    lab.surface_conditions = nil
+    if thud_conditions then thud_conditions.data[name] = conditions[1] and table.deepcopy(conditions) or nil end
+    script_labs[name] = true
   else
     for _, condition in pairs(space_only) do
       table.insert(conditions, table.deepcopy(condition))
     end
     lab.surface_conditions = conditions
   end
+end
+
+if thud then
+  data:extend{{type = "mod-data", name = "ncs-lab-rules", data_type = "ncs-lab-rules", data = {labs = script_labs}}}
 end
 
 if #exempt > 0 then

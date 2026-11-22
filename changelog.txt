@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.10
+Date: 2026-11-22
+  Features:
+    - Compatibility with T.H.U.D - Total Hull Unscheduled Descent (optional): on the floor of a landed ship everything works as on a ship, including labs and the factories the planet rules lock. On the planet's own ground the Nomad rules stay. Platform foundation on planets only next to the floor of a landed ship, single foundation tiles come back as in the base game.
+    - The mothership stays the mothership after landing and taking off with T.H.U.D. While it is down, nobody gets a new starter ship.
+  Bugfixes:
+    - With T.H.U.D, biolabs no longer stand still on the ship.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.9
 Date: 2026-11-22
   Features:
