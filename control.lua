@@ -61,6 +61,12 @@ local START_ITEMS = {
   {name = "copper-ore", count = 400},
 }
 
+-- Hardcore (Variante D): Auf Planeten gibt es keinen Ofen, also keine Steinziegel fuer die Kapsel. Deshalb eine
+-- Versorgungskapsel ab Start (Wunsch des Users, 1.0.9).
+if settings.startup["ncs-rules-variant"].value == "hardcore" then
+  table.insert(START_ITEMS, {name = CAPSULE, count = 1})
+end
+
 -- Rote Munition in den obersten Stahlkisten des Startschiffs (siehe build_ship)
 local START_AMMO = {chest = "steel-chest", chests = 2, item = "piercing-rounds-magazine", count = 300}
 
@@ -393,10 +399,16 @@ end)
 script.on_event(defines.events.on_gui_opened, function(event)
   jump.on_gui_opened(event)
   extractor.on_gui_opened(event)
+  capsule_cargo.on_gui_opened(event, is_capsule)
+end)
+script.on_event(defines.events.on_gui_checked_state_changed, capsule_cargo.on_gui_checked_state_changed)
+script.on_event(defines.events.on_entity_settings_pasted, function(event)
+  capsule_cargo.on_entity_settings_pasted(event, is_capsule)
 end)
 script.on_event(defines.events.on_gui_closed, function(event)
   jump.on_gui_closed(event)
   extractor.on_gui_closed(event)
+  capsule_cargo.on_gui_closed(event)
 end)
 script.on_event(defines.events.on_chunk_generated, extractor.on_chunk_generated)
 script.on_event(defines.events.on_surface_created, extractor.on_surface_created)

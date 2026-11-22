@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.9
+Date: 2026-11-22
+  Features:
+    - Supply capsule: new checkbox "Send surplus up" next to the capsule window (on by default). Turn it off and all ingredients stay in the capsule for the loads instead of going into the cargo hold. Copy-paste of entity settings carries it over.
+  Bugfixes:
+    - Hardcore variant D: the hub now starts with one supply capsule. Without a furnace on planets there were no stone bricks to build the first one.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.8
 Date: 2026-11-20
   Features:

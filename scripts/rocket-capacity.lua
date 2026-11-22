@@ -12,9 +12,10 @@ return variant_swap.new(config,
     return entity.rocket_silo_status == defines.rocket_silo_status.building_rocket
   end,
   save_state = function(entity)
-    return {parts = entity.rocket_parts}
+    return {parts = entity.rocket_parts, keep = storage.capsule_keep and storage.capsule_keep[entity.unit_number]}
   end,
   after_swap = function(state, new)
     new.rocket_parts = state.parts
+    if state.keep then storage.capsule_keep[new.unit_number] = true end -- Kapsel-Haekchen (scripts/capsule-cargo.lua)
   end
 })
