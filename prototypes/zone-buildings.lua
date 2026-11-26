@@ -70,13 +70,17 @@ data:extend(
     unit = costs.unit("agricultural-science-pack")
   },
   {
-    -- Zweiter Bio-Boden fuer Geleenuss, eigene Forschung (der Agrarturm kommt mit dem Yumako-Boden).
+    -- Zweiter Bio-Boden fuer Geleenuss, eigene Forschung. Seit 1.0.13 parallel zum Yumako-Boden
+    -- (gleiche Voraussetzungen, Spieler waehlt die Reihenfolge); beide schalten den Agrarturm frei.
     type = "technology",
     name = "ncs-jellynut-zone",
     icon = "__space-age__/graphics/technology/jellynut.png",
     icon_size = 256,
-    effects = {},
-    prerequisites = {"ncs-bio-zone"},
+    effects =
+    {
+      {type = "unlock-recipe", recipe = "ncs-orbital-agricultural-tower"}
+    },
+    prerequisites = {"agriculture", "agricultural-science-pack"},
     unit = costs.unit("agricultural-science-pack")
   }
 })

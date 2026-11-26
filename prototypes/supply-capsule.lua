@@ -103,8 +103,15 @@ capsule.allowed_effects = nil
 capsule.icons_positioning = nil
 capsule.max_health = 1500
 -- Seit 1.0.12 (Wunsch des Users): Auf Aquilo gibt es kein festes Erz, die Ladung braucht Ammoniak-Loesung und
--- Lithium-Sole, auf Vulcanus Lava statt Kohle. Zwei Fluessigkeits-Eingaenge (links und rechts), nur sichtbar und aktiv bei einem Rezept mit Fluessigkeit.
-local function fluid_input(direction, position)
+-- Lithium-Sole, auf Vulcanus Lava statt Kohle. Zwei Fluessigkeits-Eingaenge, nur sichtbar und aktiv bei einem Rezept mit Fluessigkeit.
+-- Seit 1.0.13: Gebaeude vom Typ rocket-silo lassen sich nicht drehen (Engine, supports_direction = false, auch
+-- beim Vanilla-Silo). Deshalb hat jeder Eingang mehrere Anschluesse: erste Fluessigkeit links, oben links und
+-- unten links, zweite rechts, oben rechts und unten rechts.
+local function fluid_input(connections)
+  local list = {}
+  for _, c in pairs(connections) do
+    table.insert(list, {flow_direction = "input", direction = c[1], position = c[2]})
+  end
   return
   {
     production_type = "input",
@@ -112,13 +119,14 @@ local function fluid_input(direction, position)
     pipe_covers = pipecoverspictures and pipecoverspictures() or nil,
     volume = 1000,
     secondary_draw_orders = {north = -1},
-    pipe_connections = {{flow_direction = "input", direction = direction, position = position}}
+    pipe_connections = list
   }
 end
+local d = defines.direction
 capsule.fluid_boxes =
 {
-  fluid_input(defines.direction.west, {-1.5, 0.5}),
-  fluid_input(defines.direction.east, {1.5, 0.5})
+  fluid_input({{d.west, {-1.5, 0.5}}, {d.north, {-0.5, -1.5}}, {d.south, {-0.5, 1.5}}}),
+  fluid_input({{d.east, {1.5, 0.5}}, {d.north, {0.5, -1.5}}, {d.south, {0.5, 1.5}}})
 }
 capsule.fluid_boxes_off_when_no_fluid_recipe = true
 capsule.energy_usage = "150kW"
