@@ -148,7 +148,7 @@ local function move_inventories(from, to)
   local armor_to = to.get_inventory(defines.inventory.character_armor)
   if armor_from and armor_to then
     for i = 1, math.min(#armor_from, #armor_to) do
-      if armor_from[i].valid_for_read then armor_to[i].set_stack(armor_from[i]) end
+      if armor_from[i].valid_for_read and not armor_from[i].swap_stack(armor_to[i]) then armor_to[i].set_stack(armor_from[i]) end
     end
   end
 
@@ -159,7 +159,11 @@ local function move_inventories(from, to)
       for i = 1, #source do
         local stack = source[i]
         if stack.valid_for_read then
-          if i <= #target and not target[i].valid_for_read and target[i].set_stack(stack) then
+          -- swap_stack verschiebt das Item selbst (gleiche item_number), damit Verweise in der Schnellleiste
+          -- (Blaupausen, Planer) erhalten bleiben; set_stack wuerde eine Kopie anlegen.
+          if i <= #target and not target[i].valid_for_read and stack.swap_stack(target[i]) then
+            -- verschoben
+          elseif i <= #target and not target[i].valid_for_read and target[i].set_stack(stack) then
             stack.clear()
           else
             local inserted = target.insert(stack)
@@ -269,6 +273,55 @@ local function free_spot(platform)
   return platform.surface.find_non_colliding_position("character", center, 40, 0.5)
 end
 
+-- Boni der Figur (von Mods gesetzt) auf die neue Figur uebernehmen. Laufgeschwindigkeit nicht: Mods wie
+-- nb1-simple-bot-start binden sie an die Ruestung und setzen sie beim Ruestungswechsel selbst neu (sonst doppelt).
+local BONUSES = {"character_crafting_speed_modifier", "character_mining_speed_modifier",
+  "character_build_distance_bonus", "character_item_drop_distance_bonus", "character_reach_distance_bonus",
+  "character_resource_reach_distance_bonus", "character_item_pickup_distance_bonus",
+  "character_loot_pickup_distance_bonus", "character_inventory_slots_bonus", "character_trash_slot_count_bonus",
+  "character_maximum_following_robot_count_bonus", "character_health_bonus"}
+
+local function copy_bonuses(from, to)
+  for _, key in pairs(BONUSES) do
+    pcall(function() to[key] = from[key] end)
+  end
+end
+
+-- Schnellleisten-Plaetze, die auf ein bestimmtes Item zeigen (Blaupause, Buch, Planer), mit item_number merken.
+local QUICKBAR_PAGES, QUICKBAR_SLOTS = 10, 10
+
+local function remember_quickbar(player)
+  local refs = {}
+  for page = 1, QUICKBAR_PAGES do
+    for slot = 1, QUICKBAR_SLOTS do
+      local ok, entry = pcall(player.get_quick_bar_slot, page, slot)
+      if ok and entry and entry.type == "item" and entry.item and entry.item.valid and entry.item.item_number then
+        table.insert(refs, {page = page, slot = slot, number = entry.item.item_number})
+      end
+    end
+  end
+  return refs
+end
+
+-- Nach dem Umzug wieder auf dieselben Items zeigen (swap_stack behaelt die item_number).
+local function restore_quickbar(player, character, refs)
+  if #refs == 0 then return end
+  local stacks = {}
+  for _, id in pairs({defines.inventory.character_main, defines.inventory.character_trash}) do
+    local inventory = character.get_inventory(id)
+    if inventory then
+      for i = 1, #inventory do
+        local stack = inventory[i]
+        if stack.valid_for_read and stack.item and stack.item.item_number then stacks[stack.item.item_number] = stack end
+      end
+    end
+  end
+  for _, ref in pairs(refs) do
+    local stack = stacks[ref.number]
+    if stack then pcall(player.set_quick_bar_slot, ref.page, ref.slot, stack) end
+  end
+end
+
 -- Spielfigur des Spielers gegen eine neue Figur des Typs `name` an `position` tauschen, Inventar uebertragen.
 -- Die alte Figur (z. B. die im Hub eingelagerte, die sich nicht versetzen laesst) wird danach entfernt.
 -- Gibt false zurueck, wenn die neue Figur nicht erzeugt werden konnte.
@@ -282,10 +335,15 @@ local function swap_character(player, surface, position, name)
     direction = old and old.valid and old.direction or nil}
   if not new then return false end
   new.color = player.color
+  local quickbar = remember_quickbar(player)
+  if old and old.valid then copy_bonuses(old, new) end
+  player.set_controller{type = defines.controllers.character, character = new}
+  -- Inventar erst nach dem Wechsel: Dann meldet die Engine den Ruestungswechsel der neuen Figur, und Mods mit
+  -- Boni an der Ruestung (z. B. Laufgeschwindigkeit von nb1-simple-bot-start) setzen sie dort neu.
   if old and old.valid then
     move_inventories(old, new)
   end
-  player.set_controller{type = defines.controllers.character, character = new}
+  restore_quickbar(player, new, quickbar)
   if old and old.valid then old.destroy() end
   return true
 end

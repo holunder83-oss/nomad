@@ -16,6 +16,6 @@ return variant_swap.new(config,
   end,
   after_swap = function(state, new)
     new.rocket_parts = state.parts
-    if state.keep then storage.capsule_keep[new.unit_number] = true end -- Kapsel-Haekchen (scripts/capsule-cargo.lua)
+    if state.keep then storage.capsule_keep[new.unit_number] = state.keep end -- Kapsel-Haekchen (scripts/capsule-cargo.lua)
   end
 })

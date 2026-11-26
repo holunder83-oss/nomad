@@ -102,6 +102,25 @@ capsule.fast_transfer_modules_into_module_slots_only = false
 capsule.allowed_effects = nil
 capsule.icons_positioning = nil
 capsule.max_health = 1500
+-- Seit 1.0.12 (Wunsch des Users): Auf Aquilo gibt es kein festes Erz, die Ladung braucht Ammoniak-Loesung und
+-- Lithium-Sole, auf Vulcanus Lava statt Kohle. Zwei Fluessigkeits-Eingaenge (links und rechts), nur sichtbar und aktiv bei einem Rezept mit Fluessigkeit.
+local function fluid_input(direction, position)
+  return
+  {
+    production_type = "input",
+    pipe_picture = assembler3pipepictures and assembler3pipepictures() or nil,
+    pipe_covers = pipecoverspictures and pipecoverspictures() or nil,
+    volume = 1000,
+    secondary_draw_orders = {north = -1},
+    pipe_connections = {{flow_direction = "input", direction = direction, position = position}}
+  }
+end
+capsule.fluid_boxes =
+{
+  fluid_input(defines.direction.west, {-1.5, 0.5}),
+  fluid_input(defines.direction.east, {1.5, 0.5})
+}
+capsule.fluid_boxes_off_when_no_fluid_recipe = true
 capsule.energy_usage = "150kW"
 capsule.active_energy_usage = "600kW"
 
@@ -171,9 +190,10 @@ data:extend(
     {type = "item", name = "coal", amount = 40},
     {type = "item", name = "iron-ore", amount = 4}
   }),
+  -- Vulcanus seit 1.0.12 (Wunsch des Users) Lava statt Kohle, ueber einen der Rohr-Anschluesse
   load_recipe("ncs-supply-capsule-load-vulcanus", 2,
   {
-    {type = "item", name = "coal", amount = 40},
+    {type = "fluid", name = "lava", amount = 100},
     {type = "item", name = "calcite", amount = 4}
   }),
   load_recipe("ncs-supply-capsule-load-gleba", 2,
@@ -185,6 +205,12 @@ data:extend(
   load_recipe("ncs-supply-capsule-load-fulgora", 2,
   {
     {type = "item", name = "scrap", amount = 40}
+  }),
+  -- Aquilo (seit 1.0.12): nur Fluessigkeiten, ueber die beiden Rohr-Anschluesse
+  load_recipe("ncs-supply-capsule-load-aquilo", 2,
+  {
+    {type = "fluid", name = "ammoniacal-solution", amount = 50},
+    {type = "fluid", name = "lithium-brine", amount = 50}
   }),
   load_recipe("ncs-supply-capsule-load-generic", 10, {})
 })

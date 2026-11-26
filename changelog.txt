@@ -1,4 +1,18 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.12
+Date: 2026-11-26
+  Features:
+    - Trains in space: rails (including elevated rails), signals, train stops, locomotives and all wagons can now be built on space platforms. Applies to trains from other mods too.
+    - Recall beam: with several ships in orbit of the planet, a small window lets you choose which ship to beam to (mothership at the top). With one ship it recalls right away as before.
+    - Supply capsule: one checkbox per ingredient ("Send up as cargo") instead of one for everything. The rocket parts are built first; once the rocket is ready, ticked ingredients fill the cargo hold. While building, anything beyond 2 loads already goes up (for example coal put in by hand while iron ore is missing).
+    - Rocket silo: the same checkboxes for the rocket part ingredients (processing units, low density structures, rocket fuel), all unticked by default. Ticked ones fill the cargo hold once the rocket is ready.
+    - Supply capsule on Vulcanus: the load now needs 100 lava (offshore pump) + 4 calcite instead of coal + calcite.
+    - Supply capsule on Aquilo: the load now needs 50 ammoniacal solution + 50 lithium brine (2 s instead of 10 s per load). The capsule has two pipe inputs on the left and right, only active on Aquilo.
+  Bugfixes:
+    - Supply capsule: coal never reached the cargo hold, the capsule used it all for the rocket parts. Ticked ingredients now fill the cargo hold while the rocket waits for launch.
+    - Recall beam, respawn on the ship and stepping in or out of the hub no longer remove blueprints, books and planners from the quickbar.
+    - Bonuses from armor (for example the running speed of Simple Bot Start) are kept after the recall beam and the space suit. Other character bonuses set by mods (reach, inventory slots, crafting speed …) are carried over too.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.11
 Date: 2026-11-22
   Features:

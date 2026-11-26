@@ -31,6 +31,17 @@ for _, name in pairs({"stone-furnace", "steel-furnace"}) do
   remove_conditions(data.raw["furnace"][name], "pressure")
 end
 
+-- Seit 1.0.12 (Wunsch des Users): Zuege im All. Space Age verlangt fuer Schienen, Signale, Bahnhoefe, Lokomotiven
+-- und Wagen Schwerkraft >= 0.1. Gilt fuer alle Prototypen dieser Typen, auch aus anderen Mods.
+for _, type in pairs({"straight-rail", "curved-rail-a", "curved-rail-b", "half-diagonal-rail", "legacy-straight-rail",
+    "legacy-curved-rail", "elevated-straight-rail", "elevated-curved-rail-a", "elevated-curved-rail-b",
+    "elevated-half-diagonal-rail", "rail-ramp", "rail-support", "rail-signal", "rail-chain-signal", "train-stop",
+    "locomotive", "cargo-wagon", "fluid-wagon", "artillery-wagon", "infinity-cargo-wagon"}) do
+  for _, prototype in pairs(data.raw[type] or {}) do
+    remove_conditions(prototype, "gravity")
+  end
+end
+
 -- Hub im Logistik-Netz (scripts/hub-logistics.lua): Der Hub selbst gehoert zu keinem Netz. Deshalb legt das Skript
 -- an jeden Hub zwei unsichtbare Kisten. In die Lager-Kiste liefern die Roboter Ueberschuss (das Skript leert sie
 -- in den Hub), die Anbieter-Kiste fuellt das Skript mit Items aus dem Hub, die im Netz angefordert werden.

@@ -270,6 +270,15 @@ for _, filter in pairs(capacity.FILTER) do
   if is_capsule(filter.name) then table.insert(CAPSULE_NAMES, filter.name) end
 end
 
+-- Haekchen "Als Fracht hochschicken" (scripts/capsule-cargo.lua): Kapseln und seit 1.0.12 auch Raketensilos
+local CARGO_NAMES = {}
+for _, filter in pairs(capacity.FILTER) do table.insert(CARGO_NAMES, filter.name) end
+capsule_cargo.set_kind(function(name)
+  local base = capacity.base_of(name)
+  if base == CAPSULE then return "capsule" elseif base == "rocket-silo" then return "silo" end
+  return nil
+end)
+
 -- Kapsel startet "explosionsartig": Wenn die Rakete abhebt (Arme fahren zurueck, nach dem Zuenden),
 -- Explosionen am Boden. Reiner Effekt, die Explosions-Entities machen keinen Schaden.
 local BLASTS = {{"massive-explosion", 0, 0}, {"big-explosion", -1.5, 1}, {"big-explosion", 1.5, 1},
@@ -426,12 +435,12 @@ end)
 script.on_event(defines.events.on_gui_opened, function(event)
   jump.on_gui_opened(event)
   extractor.on_gui_opened(event)
-  capsule_cargo.on_gui_opened(event, is_capsule)
+  capsule_cargo.on_gui_opened(event)
 end)
 script.on_event({defines.events.on_player_built_tile, defines.events.on_robot_built_tile}, thud.on_built_tile)
 script.on_event(defines.events.on_gui_checked_state_changed, capsule_cargo.on_gui_checked_state_changed)
 script.on_event(defines.events.on_entity_settings_pasted, function(event)
-  capsule_cargo.on_entity_settings_pasted(event, is_capsule)
+  capsule_cargo.on_entity_settings_pasted(event)
 end)
 script.on_event(defines.events.on_gui_closed, function(event)
   jump.on_gui_closed(event)
@@ -482,7 +491,7 @@ local function on_built(event)
   if event.entity and not event.entity.valid then return end
   sources.on_built(event)
   local built = event.entity
-  local capsule = built and built.valid and is_capsule(built.name)
+  local capsule = built and built.valid and capacity.base_of(built.name) ~= nil -- Kapsel oder Silo
   capacity.on_built(event)
   -- Kapsel merken; hat der Traglast-Tausch sie ersetzt, in der naechsten Sekunde neu zaehlen
   if capsule then
@@ -556,7 +565,7 @@ script.on_nth_tick(60, function(event)
   suit.check_all()
   recall.update_all()
   capacity.process_pending()
-  capsule_cargo.update_all(CAPSULE_NAMES)
+  capsule_cargo.update_all(CARGO_NAMES)
   -- Hub-Logistik geht alle Anforderer des Netzes durch: alle 3 s statt jede Sekunde (Optimierung 1.24.1)
   if event.tick % 180 == 0 then hub_logistics.update_all() end
   hub_supply.update_all()
