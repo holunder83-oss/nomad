@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.14
+Date: 2026-11-26
+  Bugfixes:
+    - Bugfix for the bugfix (oopsie): the six capsule connections from 1.0.13 were too many, and pipes placed next to each other at the bottom connected with each other. The supply capsule now has two pass-through connections like the electromagnetic plant, crossing each other: ammoniacal solution horizontally (left <-> right), lithium brine vertically (top <-> bottom). Pipes can continue through the capsule to the next building. Lava on Vulcanus works with both.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.13
 Date: 2026-11-26
   Balancing:
