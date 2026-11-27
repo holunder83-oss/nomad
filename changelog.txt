@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.17
+Date: 2026-11-27
+  Changes:
+    - The hard planet rules variants have new names: D "Pioneer" (was Hardcore), E "Settler" (was Super hardcore), F "Nomad" (was Super duper hardcore). Only the names change, existing saves and settings stay the same.
+    - Tips and tricks: three new entries explain the variants Pioneer, Settler and Nomad in detail (what is allowed, what is in the hub, how to progress, pitfalls). The start message of each variant points to its entry.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.16
 Date: 2026-11-27
   Features:

@@ -15,7 +15,11 @@ local ENTRIES =
   {"nomad-extractor", "[item=ncs-extractor]"},
   {"nomad-floors", "[item=ncs-lava-pool]"},
   {"nomad-cannon", "[item=ncs-orbital-cannon]"},
-  {"nomad-lategame", "[item=ncs-promethium-foundation]"}
+  {"nomad-lategame", "[item=ncs-promethium-foundation]"},
+  -- Schwere Regel-Varianten (1.0.17, Wunsch des Users: im Spiel ausfuehrlicher beschreiben)
+  {"nomad-variant-d", "[item=stone-furnace]"},
+  {"nomad-variant-e", "[item=burner-inserter]"},
+  {"nomad-variant-f", "[item=burner-mining-drill]"}
 }
 
 local list =
