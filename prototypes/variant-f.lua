@@ -10,7 +10,7 @@
 --     Beisser, Vulcanus Chemieanlage + Tank fuer Wasser/Dampf, Fulgora Assembler 1 zum Stabilisieren). Gleba und
 --     Aquilo haben es schon in ihren Planeten-Paketen.
 --   * Komfort-Paket frueh auf Nauvis (Radar, Lampe, Kombinatoren, Schalter, Lautsprecher, Anzeige,
---     Selektor-Kombinator; 200 x Rot/Gruen; 1.0.20).
+--     Selektor-Kombinator; 200 x Rot/Gruen; 1.1.0).
 --   * Uebrige Grundspiel-Gebaeude erst nach Aquilo (Kryo-Science), Space-Age-Gebaeude erst mit Promethium-Science,
 --     gebuendelt nach Bereichen (Logistik, Fluessigkeiten, Strom, Produktion ...).
 -- Gleiche Schnittstelle wie prototypes/variant-d.lua: tech_for liefert den Namen, finalize legt die Forschungen an.
@@ -63,7 +63,7 @@ local GROUPS =
     pre = {"electromagnetic-science-pack"}},
   ["inserters-turbo"] = {icon = "stack-inserter", unit = unit_of(3000, plus(RGBW, "agricultural-science-pack")),
     pre = {"agricultural-science-pack"}},
-  -- Komfort auf Nauvis (1.0.20, Wunsch des Users): Radar, Lampen, Schaltungen frueh
+  -- Komfort auf Nauvis (1.1.0, Wunsch des Users): Radar, Lampen, Schaltungen frueh
   -- Selektor-Kombinator braucht im Grundspiel Blau (advanced-combinators): nicht als Voraussetzung, sonst kaeme das
   -- ganze Paket erst nach Blau. Bauen darf man ihn ab dem Paket, herstellen erst nach der Grundspiel-Forschung.
   ["qol"] = {icon = "radar", unit = unit_of(200, {"automation-science-pack", "logistic-science-pack"}), pre = {},
