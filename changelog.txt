@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.19
+Date: 2026-11-27
+  Changes:
+    - Variant F "Nomad": pumpjack, pipe and underground pipe are allowed on planets from the start, so crude oil can be pumped, piped to the barrel station and barreled early. The Vulcanus kit now only holds the offshore pump, the Aquilo kit the heating tower and heat pipe.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.18
 Date: 2026-11-27
   Bugfixes:

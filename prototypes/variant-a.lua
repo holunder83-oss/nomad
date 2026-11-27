@@ -154,6 +154,10 @@ if variant == "super-duper-hardcore" then
   ALWAYS["rocket-silo"] = true
   ALWAYS["cargo-bay"] = true
   ALWAYS["landing-pad-unloading-bay"] = true
+  -- 1.0.19 (Meldung des Users): Rohoel pumpen, verrohren und abfuellen ab Start (Abfuellstation: barrel-station.lua)
+  ALWAYS["pipe"] = true
+  ALWAYS["pipe-to-ground"] = true
+  ALWAYS["pumpjack"] = true
 end
 -- Typen, die in Super-Hardcore trotzdem nie gesperrt werden: Labore (prototypes/lab-rules.lua), Pflanzen
 local SUPER_FREE_TYPES = {lab = true, plant = true, tree = true, ["construction-robot"] = true,
