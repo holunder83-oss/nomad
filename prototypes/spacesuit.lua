@@ -2,13 +2,17 @@
 -- (nur im Orbit, siehe scripts/spacesuit.lua). Zahlen sind vorlaeufig und werden beim Testen festgelegt.
 -- Die Anzug-Figur selbst (schwebt ueber Gebaeude) wird in data-final-fixes erzeugt (prototypes/spacesuit-character.lua).
 
+-- Symbol fuers All unten rechts (1.0.20, Wunsch des Users: nicht mit der Vanilla-Ruestung verwechseln),
+-- gleiche Groesse und Lage wie die Ecken in prototypes/tech-icons.lua
+local ARMOR = {icon = "__base__/graphics/technology/heavy-armor.png", icon_size = 256}
+local SPACE = {icon = "__space-age__/graphics/icons/solar-system-edge.png", icon_size = 64, scale = 0.75, shift = {38, 38}}
+
 data:extend(
 {
   {
     type = "technology",
     name = "ncs-spacesuit",
-    icon = "__base__/graphics/technology/heavy-armor.png",
-    icon_size = 256,
+    icons = {ARMOR, SPACE},
     effects = {{type = "nothing", effect_description = {"ncs-tech.spacesuit"}}},
     prerequisites = {"logistic-science-pack"},
     unit =
@@ -25,8 +29,9 @@ data:extend(
     name = "ncs-spacesuit-flight",
     icons =
     {
-      {icon = "__base__/graphics/technology/heavy-armor.png", icon_size = 256},
-      {icon = "__space-age__/graphics/icons/carbon-fiber.png", icon_size = 64, scale = 0.25, shift = {8, 8}}
+      ARMOR,
+      SPACE,
+      {icon = "__space-age__/graphics/icons/carbon-fiber.png", icon_size = 64, scale = 0.75, shift = {-38, 38}}
     },
     effects = {{type = "nothing", effect_description = {"ncs-tech.spacesuit-flight"}}},
     prerequisites = {"ncs-spacesuit", "agricultural-science-pack", "carbon-fiber"},

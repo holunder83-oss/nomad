@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.20
+Date: 2026-11-27
+  Changes:
+    - Variant F "Nomad": new early research "Comfort" (200 red and green packs) allows radar, lamp, all combinators (including the selector combinator), power switch, programmable speaker and display panel on planets. The selector combinator can still only be crafted after "Advanced combinators". The late "Circuits" bundle is gone, radar and power switch left the defense and power bundles.
+  Graphics:
+    - The space suit researches show a small solar system symbol in the corner, so they are not mistaken for the vanilla armor. "Space suit: flight-rated" shows the carbon fiber larger in the other corner.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.19
 Date: 2026-11-27
   Changes:

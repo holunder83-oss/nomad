@@ -9,6 +9,8 @@
 --   * Extraktor-Pakete: was die Herausforderung eines Planeten mindestens braucht (Nauvis Geschuetz + Mauer gegen
 --     Beisser, Vulcanus Chemieanlage + Tank fuer Wasser/Dampf, Fulgora Assembler 1 zum Stabilisieren). Gleba und
 --     Aquilo haben es schon in ihren Planeten-Paketen.
+--   * Komfort-Paket frueh auf Nauvis (Radar, Lampe, Kombinatoren, Schalter, Lautsprecher, Anzeige,
+--     Selektor-Kombinator; 200 x Rot/Gruen; 1.0.20).
 --   * Uebrige Grundspiel-Gebaeude erst nach Aquilo (Kryo-Science), Space-Age-Gebaeude erst mit Promethium-Science,
 --     gebuendelt nach Bereichen (Logistik, Fluessigkeiten, Strom, Produktion ...).
 -- Gleiche Schnittstelle wie prototypes/variant-d.lua: tech_for liefert den Namen, finalize legt die Forschungen an.
@@ -61,6 +63,11 @@ local GROUPS =
     pre = {"electromagnetic-science-pack"}},
   ["inserters-turbo"] = {icon = "stack-inserter", unit = unit_of(3000, plus(RGBW, "agricultural-science-pack")),
     pre = {"agricultural-science-pack"}},
+  -- Komfort auf Nauvis (1.0.20, Wunsch des Users): Radar, Lampen, Schaltungen frueh
+  -- Selektor-Kombinator braucht im Grundspiel Blau (advanced-combinators): nicht als Voraussetzung, sonst kaeme das
+  -- ganze Paket erst nach Blau. Bauen darf man ihn ab dem Paket, herstellen erst nach der Grundspiel-Forschung.
+  ["qol"] = {icon = "radar", unit = unit_of(200, {"automation-science-pack", "logistic-science-pack"}), pre = {},
+    skip_own = {["selector-combinator"] = true}},
   -- Extraktor-Pakete
   ["extractor-nauvis"] = {icon = "gun-turret", unit = unit_of(500, RGBW), pre = {"ncs-extractor"}},
   ["extractor-vulcanus"] = {icon = "chemical-plant", unit = unit_of(500, RGBW),
@@ -91,7 +98,7 @@ local GROUPS =
   ["sa-other"] = {icon = "captive-biter-spawner", unit = all_until_promethium(20000), pre = {"promethium-science-pack"}},
 }
 -- Reihenfolge im Forschungsbaum
-local ORDER = {"belts-yellow", "inserters-yellow", "extractor-nauvis", "vulcanus", "extractor-vulcanus", "belts-red", "inserters-red", "fulgora", "extractor-fulgora", "belts-blue", "inserters-blue", "gleba", "belts-turbo", "inserters-turbo", "aquilo",
+local ORDER = {"belts-yellow", "inserters-yellow", "qol", "extractor-nauvis", "vulcanus", "extractor-vulcanus", "belts-red", "inserters-red", "fulgora", "extractor-fulgora", "belts-blue", "inserters-blue", "gleba", "belts-turbo", "inserters-turbo", "aquilo",
   "logistics", "fluids", "power", "production", "defense", "trains", "vehicles", "robots", "circuits", "rockets",
   "base-other", "sa-production", "sa-power", "sa-mining", "sa-other"}
 
@@ -116,11 +123,11 @@ put("gleba", {"agricultural-tower"})
 put("aquilo", {"heating-tower", "heat-pipe"})
 put("logistics", {"iron-chest", "steel-chest"})
 put("fluids", {"pump"})
-put("power", {"medium-electric-pole", "big-electric-pole", "substation", "power-switch", "boiler", "steam-engine",
+put("power", {"medium-electric-pole", "big-electric-pole", "substation", "boiler", "steam-engine",
   "steam-turbine", "heat-exchanger", "nuclear-reactor"})
 put("production", {"assembling-machine-2", "assembling-machine-3", "stone-furnace", "steel-furnace",
   "electric-furnace", "oil-refinery", "centrifuge", "beacon"})
-put("defense", {"gate", "land-mine", "radar", "artillery-turret"})
+put("defense", {"gate", "land-mine", "artillery-turret"})
 put("trains", {"straight-rail", "half-diagonal-rail", "curved-rail-a", "curved-rail-b", "rail-signal",
   "rail-chain-signal", "train-stop", "locomotive", "cargo-wagon", "fluid-wagon", "artillery-wagon", "rail-ramp",
   "rail-support", "elevated-straight-rail", "elevated-half-diagonal-rail", "elevated-curved-rail-a",
@@ -128,8 +135,8 @@ put("trains", {"straight-rail", "half-diagonal-rail", "curved-rail-a", "curved-r
 put("vehicles", {"car", "tank", "spidertron"})
 put("robots", {"roboport", "passive-provider-chest", "active-provider-chest", "storage-chest", "buffer-chest",
   "requester-chest"})
-put("circuits", {"arithmetic-combinator", "decider-combinator", "constant-combinator", "selector-combinator",
-  "small-lamp", "programmable-speaker", "display-panel"})
+put("qol", {"radar", "small-lamp", "arithmetic-combinator", "decider-combinator", "constant-combinator",
+  "power-switch", "programmable-speaker", "display-panel", "selector-combinator"})
 -- Raketensilo, Frachtraum und Landeplatz-Entladeraum ab Start (Wunsch des Users, prototypes/variant-a.lua)
 put("sa-production", {"foundry", "electromagnetic-plant", "biochamber", "cryogenic-plant", "recycler"})
 put("sa-power", {"fusion-reactor", "fusion-generator", "lightning-collector"})
@@ -185,7 +192,7 @@ local function tech_icons(entity_name)
   return icons
 end
 
-local function make_tech(tech_name, members, unit, pre, icon_entity, localised_name, order)
+local function make_tech(tech_name, members, unit, pre, icon_entity, localised_name, order, skip_own)
   local prerequisites = {}
   for _, name in pairs(pre) do add_unique(prerequisites, name) end
   for _, ingredient in pairs(unit.ingredients) do
@@ -196,7 +203,7 @@ local function make_tech(tech_name, members, unit, pre, icon_entity, localised_n
   for _, name in pairs(members) do
     local item_name = hardcore.placing_item(name)
     local own = item_name and hardcore.unlocking_tech(item_name)
-    if own ~= tech_name then add_unique(prerequisites, own) end
+    if own ~= tech_name and not (skip_own and skip_own[name]) then add_unique(prerequisites, own) end
     -- Schienenteile nur einmal anzeigen
     if not (string.find(name, "rail") and name ~= "straight-rail" and name ~= "elevated-straight-rail"
       and name ~= "rail-ramp") then
@@ -227,7 +234,7 @@ function f.finalize()
       table.sort(members)
       local group = GROUPS[key]
       make_tech("ncs-planet-group-" .. key .. "-build", members, table.deepcopy(group.unit), group.pre, group.icon,
-        {"ncs-tech.planet-build", {"ncs-tech.group-" .. key}}, "z[ncs]-q[planet-build]-" .. string.format("%02d", index))
+        {"ncs-tech.planet-build", {"ncs-tech.group-" .. key}}, "z[ncs]-q[planet-build]-" .. string.format("%02d", index), group.skip_own)
     end
   end
   for name, prototype in pairs(turrets) do
