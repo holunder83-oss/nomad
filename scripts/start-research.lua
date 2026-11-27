@@ -9,6 +9,10 @@ local start_research = {}
 
 -- Vulcanus, Fulgora und Gleba seit 1.24.1 ab Start entdeckt (Wunsch des Users)
 local EXTRA = {"space-platform", "planet-discovery-vulcanus", "planet-discovery-fulgora", "planet-discovery-gleba"}
+-- Super-Hardcore (1.0.16, Wunsch des Users): nur Nauvis, die anderen Planeten muss man selbst entdecken
+-- (ebenso in Variante F "Super-Duper-Hardcore")
+local variant = settings.startup["ncs-rules-variant"].value
+if variant == "super-hardcore" or variant == "super-duper-hardcore" then EXTRA = {"space-platform"} end
 -- Rezepte, die zusaetzlich ab Start gehen sollen (ihre Forschung samt Voraussetzungen wird erforscht).
 -- Rote Munition seit 1.24.1 (Wunsch des Users, fuer die Geschuetze auf dem Startschiff).
 local EXTRA_RECIPES = {"piercing-rounds-magazine"}

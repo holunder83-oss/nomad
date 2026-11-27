@@ -64,8 +64,32 @@ local START_ITEMS = {
 
 -- Hardcore (Variante D): Auf Planeten gibt es keinen Ofen, also keine Steinziegel fuer die Kapsel. Deshalb eine
 -- Versorgungskapsel ab Start (Wunsch des Users, 1.0.9).
-if settings.startup["ncs-rules-variant"].value == "hardcore" then
+local RULES_VARIANT = settings.startup["ncs-rules-variant"].value
+local SUPER_VARIANT = RULES_VARIANT == "super-hardcore" or RULES_VARIANT == "super-duper-hardcore"
+if RULES_VARIANT == "hardcore" or SUPER_VARIANT then
   table.insert(START_ITEMS, {name = CAPSULE, count = 1})
+end
+-- Super-Hardcore (1.0.16, Liste mit dem User abgestimmt): nur was auf Planeten ab Start stehen darf, Strom nur
+-- Solar (nachts laufen nur Brennstoffbohrer), dazu wenig fuer den Ausbau des Schiffs. Eine Kapsel, keine Reserve.
+-- Variante F (Super-Duper-Hardcore) bekommt dieselbe Liste.
+if SUPER_VARIANT then
+  START_ITEMS = {
+    {name = "electric-mining-drill", count = 40},
+    {name = "burner-mining-drill", count = 40},
+    {name = "solar-panel", count = 100},
+    {name = "small-electric-pole", count = 200},
+    {name = "transport-belt", count = 600},
+    {name = "burner-inserter", count = 100},
+    {name = "wooden-chest", count = 50},
+    {name = "solid-fuel", count = 200},
+    {name = CAPSULE, count = 1},
+    {name = "ncs-small-gun-turret", count = 10},
+    {name = "piercing-rounds-magazine", count = 200},
+    {name = "cargo-landing-pad", count = 1},
+    {name = "copper-ore", count = 400},
+    {name = "assembling-machine-1", count = 20},
+    {name = "steel-furnace", count = 20},
+  }
 end
 
 -- Rote Munition in den obersten Stahlkisten des Startschiffs (siehe build_ship)
@@ -383,6 +407,8 @@ script.on_init(function()
     remote.call("freeplay", "set_disable_crashsite", true)
     local variant = settings.startup["ncs-rules-variant"].value
     local intro = (variant == "mining" and "ncs-message.intro-mining") or (variant == "hardcore" and "ncs-message.intro-hardcore")
+      or (variant == "super-hardcore" and "ncs-message.intro-super-hardcore")
+      or (variant == "super-duper-hardcore" and "ncs-message.intro-super-duper-hardcore")
       or "ncs-message.intro"
     remote.call("freeplay", "set_custom_intro_message", {intro})
   end

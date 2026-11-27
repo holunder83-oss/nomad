@@ -15,9 +15,21 @@
 
 -- Variante D "Hardcore" (seit 1.0.5) nutzt denselben Code: keine einfachen Fabriken ab Start, jedes Gebaeude mit
 -- eigener Forschung (prototypes/variant-d.lua).
+-- Variante E "Super-Hardcore" (1.0.16): wie D, aber auf Planeten ab Start nur die Grundausstattung (SUPER_ALWAYS),
+-- jedes andere Gebaeude (auch Logistik, Strom, Verteidigung) mit eigener Forschung ab Rot.
 local variant = settings.startup["ncs-rules-variant"].value
-if variant ~= "mining" and variant ~= "hardcore" then return end
-local hardcore = variant == "hardcore" and require("prototypes.variant-d")
+-- Variante F "Super-Duper-Hardcore" (1.0.16): Grundausstattung wie E, sonst Paket-Forschungen (prototypes/variant-f.lua)
+if variant ~= "mining" and variant ~= "hardcore" and variant ~= "super-hardcore" and variant ~= "super-duper-hardcore" then
+  return
+end
+local super = variant == "super-hardcore" or variant == "super-duper-hardcore"
+local hardcore
+if variant == "super-duper-hardcore" then
+  hardcore = require("prototypes.variant-f")
+elseif variant == "hardcore" or super then
+  hardcore = require("prototypes.variant-d")
+  if super then hardcore.super = true end
+end
 
 local surface_util = require("prototypes.surface-util")
 local costs = require("prototypes.upgrade-costs")
@@ -87,6 +99,10 @@ for _, prototypes_of_type in pairs(data.raw) do
     if type(prototype) == "table" and prototype.place_result then
       placed[prototype.place_result] = true
     end
+    -- Schienen baut der Schienenplaner
+    if type(prototype) == "table" and prototype.type == "rail-planner" then
+      for _, rail in pairs(prototype.rails or {}) do placed[rail] = true end
+    end
   end
 end
 
@@ -122,6 +138,26 @@ local ALWAYS =
   ["chemical-plant"] = true, ["oil-refinery"] = true
 }
 if hardcore then ALWAYS = {} end
+-- Super-Hardcore: Grundausstattung (Wunsch des Users). Versorgungskapsel und kleines MG-Geschuetz sind ncs-Gebaeude
+-- und deshalb ohnehin nicht gesperrt.
+local SUPER_ALWAYS =
+{
+  ["solar-panel"] = true, ["electric-mining-drill"] = true, ["burner-mining-drill"] = true,
+  ["small-electric-pole"] = true, ["transport-belt"] = true, ["burner-inserter"] = true,
+  ["wooden-chest"] = true, ["cargo-landing-pad"] = true
+}
+if super then ALWAYS = SUPER_ALWAYS end
+-- Super-Duper-Hardcore: zusaetzlich Raketensilo und die Anbauten des Frachtlandeplatzes (Frachtraum,
+-- Landeplatz-Entladeraum) ab Start (Wunsch des Users)
+if variant == "super-duper-hardcore" then
+  ALWAYS = table.deepcopy(SUPER_ALWAYS)
+  ALWAYS["rocket-silo"] = true
+  ALWAYS["cargo-bay"] = true
+  ALWAYS["landing-pad-unloading-bay"] = true
+end
+-- Typen, die in Super-Hardcore trotzdem nie gesperrt werden: Labore (prototypes/lab-rules.lua), Pflanzen
+local SUPER_FREE_TYPES = {lab = true, plant = true, tree = true, ["construction-robot"] = true,
+  ["logistic-robot"] = true}
 -- Alle anderen Fabriken duerfen per Forschung auf Planeten: Grundspiel-Gebaeude mit "Planeten-Fabriken",
 -- Space-Age-Gebaeude erst spaet mit "Planeten-Industrie". Ob ein Gebaeude auf einer Oberflaeche stehen darf, laesst
 -- sich nicht an eine Forschung knuepfen; scripts/planet-rules.lua entfernt deshalb gesperrte Gebaeude beim Bauen.
@@ -144,14 +180,15 @@ end
 
 local gated, gated_log, skipped = {}, {}, {}
 for type_name, prototypes_of_type in pairs(data.raw) do
-  if not PLANET_TYPES[type_name] then
+  if (super and not SUPER_FREE_TYPES[type_name]) or (not super and not PLANET_TYPES[type_name]) then
     for name, prototype in pairs(prototypes_of_type) do
       -- collision_box: nur echte Gebaeude, nicht gleichnamige Items, Rezepte oder Technologien
       if type(prototype) == "table" and placed[name] and prototype.type == type_name and prototype.collision_box
         and string.sub(name, 1, 4) ~= "ncs-" and string.sub(name, 1, 5) ~= "thud-"
-        and from_vanilla(prototype) and not ALWAYS[name] then
+        and from_vanilla(prototype) and not ALWAYS[name] and (not super or hardcore.craftable(name)) then
         local conditions = original_conditions(name, prototype)
-        if on_some_planet(conditions) and surface_util.allowed_in_space(conditions) then
+        -- Super-Hardcore sperrt auch Gebaeude, die nur auf Planeten stehen (Raketensilo, Agrarturm ...)
+        if on_some_planet(conditions) and (super or surface_util.allowed_in_space(conditions)) then
           if hardcore then
             gated[name] = hardcore.tech_for(name, prototype)
           else
@@ -166,6 +203,8 @@ for type_name, prototypes_of_type in pairs(data.raw) do
     end
   end
 end
+
+if hardcore and hardcore.finalize then hardcore.finalize() end
 
 table.sort(gated_log)
 table.sort(skipped)

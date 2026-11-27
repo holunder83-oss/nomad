@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.16
+Date: 2026-11-27
+  Features:
+    - New planet rules variant E "Super hardcore": on planets you start with only solar panels, electric and burner mining drills, small electric poles, yellow belts, burner inserters, wooden chests, the supply capsule and the cargo landing pad. Every other building (inserters, underground belts, pipes, turrets, furnaces, assemblers, trains ...) needs its own "Planetary build" research, the first ones with red science. Only Nauvis is discovered at the start.
+    - New planet rules variant F "Super duper hardcore": same start as E, but each planet only brings the bare minimum after its discovery (Vulcanus: offshore pump and pipes, Fulgora: lightning rod and accumulator, Gleba: agricultural tower and all turrets, Aquilo: heating tower, heat pipe and pumpjack). Belts and inserters come after each planet, each with its own research (the yellow belt is allowed from the start): yellow underground belts and splitters as well as the inserter early, red belts and fast inserter after Vulcanus, blue belts and bulk inserter after Fulgora, turbo belts and stack inserter after Gleba. Extractor kits make the extractor challenges possible: Nauvis gun turret and stone wall, Vulcanus chemical plant and storage tank, Fulgora assembling machine 1. The rocket silo, cargo bay and landing pad unloading bay are allowed from the start. All other base game buildings only after Aquilo, Space Age buildings only with promethium science, in bundles (logistics, fluids, power, production ...).
+    - New small gun turret (super hardcore and super duper hardcore only): a weak 1x1 gun turret, craftable and placeable on planets from the start. In both variants the hub holds its own start kit: 40 electric and 40 burner mining drills, 100 solar panels, 200 small electric poles, 600 belts, 100 burner inserters, 50 wooden chests, 200 solid fuel, 1 supply capsule, 10 small gun turrets, 200 piercing rounds magazines, 1 cargo landing pad, 400 copper ore, 20 assembling machines 1 and 20 steel furnaces.
+  Changes:
+    - Starter ship: two more fast underground belts and a seventh (empty) request section in the hub.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.15
 Date: 2026-11-26
   Features:

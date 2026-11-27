@@ -7,11 +7,15 @@ data:extend(
     --   C "space-age": Space-Age-Gebaeude nur im All, ausser Recycler und Agrarturm (prototypes/variant-b.lua)
     --   D "hardcore" (seit 1.0.5): wie A, aber ohne einfache Fabriken; jedes Gebaeude mit eigener Forschung nach
     --     Metallurgie-Science (prototypes/variant-d.lua), dazu die Abfuellstation (prototypes/barrel-station.lua)
+    --   E "super-hardcore" (seit 1.0.16): auf Planeten ab Start nur die Grundausstattung, jedes andere Gebaeude
+    --     mit eigener Forschung ab Rot (prototypes/variant-d.lua), nur Nauvis entdeckt, kleines MG-Geschuetz
+    --   F "super-duper-hardcore" (seit 1.0.16): wie E, aber nur Planeten-Pakete, Baender nach jedem Planeten,
+    --     Grundspiel-Gebaeude nach Aquilo, Space-Age-Gebaeude mit Promethium-Science (prototypes/variant-f.lua)
     type = "string-setting",
     name = "ncs-rules-variant",
     setting_type = "startup",
     default_value = "mining",
-    allowed_values = {"mining", "all", "space-age", "hardcore"},
+    allowed_values = {"mining", "all", "space-age", "hardcore", "super-hardcore", "super-duper-hardcore"},
     order = "0"
   },
   {

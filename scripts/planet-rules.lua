@@ -7,6 +7,25 @@ local planet_rules = {}
 
 -- Typen der betroffenen Fabriken (fuer die Ereignis-Filter)
 local TYPES = {"assembling-machine", "furnace", "beacon", "lab"}
+-- Super-Hardcore und Super-Duper-Hardcore (1.0.16): fast alle Gebaeude sind gesperrt, deshalb alle Bau-Typen
+local variant = settings.startup["ncs-rules-variant"].value
+if variant == "super-hardcore" or variant == "super-duper-hardcore" then
+  for _, type_name in pairs({
+    "mining-drill", "offshore-pump", "agricultural-tower", "transport-belt", "underground-belt", "splitter",
+    "lane-splitter", "loader", "loader-1x1", "inserter", "container", "logistic-container", "pipe", "pipe-to-ground",
+    "pump", "storage-tank", "valve", "roboport", "electric-pole", "power-switch", "boiler", "generator",
+    "burner-generator", "solar-panel", "accumulator", "reactor", "heat-pipe", "fusion-reactor", "fusion-generator",
+    "lightning-attractor", "turret", "ammo-turret", "electric-turret", "fluid-turret", "artillery-turret", "wall",
+    "gate", "land-mine", "radar", "straight-rail", "curved-rail-a", "curved-rail-b", "half-diagonal-rail",
+    "elevated-straight-rail", "elevated-curved-rail-a", "elevated-curved-rail-b", "elevated-half-diagonal-rail",
+    "rail-ramp", "rail-support", "rail-signal", "rail-chain-signal", "train-stop", "locomotive", "cargo-wagon",
+    "fluid-wagon", "artillery-wagon", "car", "spider-vehicle", "arithmetic-combinator", "decider-combinator",
+    "constant-combinator", "selector-combinator", "programmable-speaker", "lamp", "display-panel", "rocket-silo",
+    "cargo-landing-pad", "cargo-bay", "unit-spawner"
+  }) do
+    table.insert(TYPES, type_name)
+  end
+end
 
 planet_rules.FILTER = {}
 for _, type_name in pairs(TYPES) do

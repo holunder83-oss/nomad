@@ -4,6 +4,7 @@ require("prototypes.rocket-capacity") -- Varianten von Silo und Kapsel, deshalb 
 require("prototypes.large-cargo-bay")
 require("prototypes.recall")
 require("prototypes.orbital-cannon")
+require("prototypes.small-gun-turret") -- Variante E: kleines MG-Geschuetz ab Start
 require("prototypes.robot-shells")
 require("prototypes.zone-buildings")
 require("prototypes.lategame")
