@@ -281,8 +281,10 @@ end)
 
 -- Kapsel startet "explosionsartig": Wenn die Rakete abhebt (Arme fahren zurueck, nach dem Zuenden),
 -- Explosionen am Boden. Reiner Effekt, die Explosions-Entities machen keinen Schaden.
-local BLASTS = {{"massive-explosion", 0, 0}, {"big-explosion", -1.5, 1}, {"big-explosion", 1.5, 1},
-  {"big-explosion", 0, 2}, {"medium-explosion", -2, -1}, {"medium-explosion", 2, -1}}
+-- Eigene Kopien der Explosionen (prototypes/supply-capsule.lua), Lautstaerke per Einstellung ncs-capsule-volume.
+local BLASTS = {{"ncs-capsule-massive-explosion", 0, 0}, {"ncs-capsule-big-explosion", -1.5, 1},
+  {"ncs-capsule-big-explosion", 1.5, 1}, {"ncs-capsule-big-explosion", 0, 2},
+  {"ncs-capsule-medium-explosion", -2, -1}, {"ncs-capsule-medium-explosion", 2, -1}}
 local IGNITED =
 {
   [defines.rocket_silo_status.arms_retract] = true,

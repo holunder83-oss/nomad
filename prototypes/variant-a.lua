@@ -128,14 +128,30 @@ if hardcore then ALWAYS = {} end
 local TECH_BASE = "ncs-planet-factories"
 local TECH_SPACE_AGE = "ncs-planet-industry"
 
+-- Mit T.H.U.D (seit 1.0.15): T.H.U.D nimmt Triebwerk, Asteroidensammler, Brecher usw. die Bedingungen ab und merkt
+-- sie in mod-data "thud-surface-conditions". Ohne diese Liste galten sie als planetentauglich und bekamen in
+-- Hardcore je eine Forschung "Planetenbau: Triebwerk". Deshalb zaehlen die urspruenglichen Bedingungen; was nur
+-- ins All darf, bleibt unveraendert (auf Planetenboden legt T.H.U.D es still).
+local thud_mod_data = mods["Thud"] and data.raw["mod-data"] and data.raw["mod-data"]["thud-surface-conditions"]
+local thud_conditions = thud_mod_data and thud_mod_data.data or {}
+-- Den Brecher macht T.H.U.D ohne Eintrag in der Liste ueberall baubar (data/crusher/crusher.lua); im Grundspiel
+-- nur im All (Schwerkraft 0).
+local THUD_UNRECORDED = {crusher = {{property = "gravity", min = 0, max = 0}}}
+local function original_conditions(name, prototype)
+  if prototype.surface_conditions then return prototype.surface_conditions end
+  if mods["Thud"] then return thud_conditions[name] or THUD_UNRECORDED[name] end
+end
+
 local gated, gated_log, skipped = {}, {}, {}
 for type_name, prototypes_of_type in pairs(data.raw) do
   if not PLANET_TYPES[type_name] then
     for name, prototype in pairs(prototypes_of_type) do
       -- collision_box: nur echte Gebaeude, nicht gleichnamige Items, Rezepte oder Technologien
       if type(prototype) == "table" and placed[name] and prototype.type == type_name and prototype.collision_box
-        and string.sub(name, 1, 4) ~= "ncs-" and from_vanilla(prototype) and not ALWAYS[name] then
-        if on_some_planet(prototype.surface_conditions) and surface_util.allowed_in_space(prototype.surface_conditions) then
+        and string.sub(name, 1, 4) ~= "ncs-" and string.sub(name, 1, 5) ~= "thud-"
+        and from_vanilla(prototype) and not ALWAYS[name] then
+        local conditions = original_conditions(name, prototype)
+        if on_some_planet(conditions) and surface_util.allowed_in_space(conditions) then
           if hardcore then
             gated[name] = hardcore.tech_for(name, prototype)
           else

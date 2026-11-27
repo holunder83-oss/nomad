@@ -25,6 +25,16 @@ data:extend(
     order = "1"
   },
   {
+    -- Lautstaerke der Versorgungskapsel in Prozent (prototypes/supply-capsule.lua), seit 1.0.15
+    type = "int-setting",
+    name = "ncs-capsule-volume",
+    setting_type = "startup",
+    default_value = 100,
+    minimum_value = 0,
+    maximum_value = 100,
+    order = "2"
+  },
+  {
     -- Wer auf einem Planeten stirbt, wacht im Hub des Mutterschiffs auf (scripts/recall.lua)
     type = "bool-setting",
     name = "ncs-respawn-on-ship",

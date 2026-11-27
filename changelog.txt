@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.15
+Date: 2026-11-26
+  Features:
+    - New startup setting "Supply capsule volume (%)": 0 to 100, default 100. Makes the supply capsule quieter (doors, rocket, launch explosions) or silent.
+  Bugfixes:
+    - Supply capsule: the circuit wire connection point was still where it would be on the 9x9 rocket silo. It now sits on the right edge of the capsule.
+    - With T.H.U.D: hardcore no longer adds nonsense researches like "Planet building: Thruster", "Asteroid collector", "Crusher", "Captive biter spawner" or for T.H.U.D's landing previews. T.H.U.D removes the surface conditions of these space buildings; Nomad now uses their original conditions. The same buildings no longer need "Planetary industry" in the default rules either. On planet ground T.H.U.D keeps them stopped as before.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.14
 Date: 2026-11-26
   Bugfixes:

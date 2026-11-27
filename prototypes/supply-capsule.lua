@@ -30,7 +30,10 @@ local function scale_graphics(t, k, seen)
     if t.shift then t.shift = scale_vector(t.shift, k) end
   end
   for key, value in pairs(t) do
-    if type(value) == "table" and key ~= "shift" then scale_graphics(value, k, seen) end
+    -- Geraeusche haben auch filename, sind aber keine Grafik
+    if type(value) == "table" and key ~= "shift" and not (type(key) == "string" and key:find("sound")) then
+      scale_graphics(value, k, seen)
+    end
   end
 end
 
@@ -77,6 +80,17 @@ for _, hatch in pairs((capsule.cargo_station_parameters or {}).hatch_definitions
     if type(value) == "number" and key ~= "receiving_cargo_units" then hatch[key] = value * SCALE
     elseif key == "offset" or key == "pod_shadow_offset" then hatch[key] = scale_vector(value, SCALE) end
   end
+end
+-- Schaltungsanschluss (seit 1.0.15, Meldung des Users: Kabel hingen noch an der Stelle des 9x9-Silos).
+-- scale_graphics verkleinert nur die Sprites, nicht die Kabelpunkte. Deshalb neu erzeugt wie beim Silo
+-- (circuit-connector-generated-definitions.lua), Versatz mit SCALE, Sprite in normaler Groesse.
+do
+  local px = function(x, y) return util.by_pixel(x * SCALE, y * SCALE) end
+  local connector = {variation = 1, main_offset = px(139.5, 60), shadow_offset = px(175.5, 104), show_shadow = true,
+    secondary_draw_order = 70}
+  local unused = {variation = 25, main_offset = px(48.5, 104), shadow_offset = px(75.5, 129), show_shadow = true}
+  capsule.circuit_connector = circuit_connector_definitions.create_vector(universal_connector_template,
+    {connector, unused, unused, unused})
 end
 capsule.times_to_blink = 1
 capsule.light_blinking_speed = capsule.light_blinking_speed * SPEED
@@ -130,6 +144,47 @@ capsule.fluid_boxes =
   fluid_input({{d.north, {-0.5, -1.5}}, {d.south, {-0.5, 1.5}}})
 }
 capsule.fluid_boxes_off_when_no_fluid_recipe = true
+
+-- Lautstaerke (seit 1.0.15, Wunsch des Users): Startup-Einstellung ncs-capsule-volume in Prozent. Skaliert alle
+-- Geraeusche von Kapsel, Kapsel-Rakete und den Start-Explosionen (eigene Kopien, Vanilla-Explosionen bleiben).
+-- Die Frachtkapsel selbst ist dieselbe wie beim Silo und bleibt unveraendert.
+local VOLUME = settings.startup["ncs-capsule-volume"].value / 100
+local function scale_sound(def)
+  if type(def) ~= "table" then return end
+  if def.filename then
+    def.volume = (def.volume or 1) * VOLUME
+    if def.min_volume then def.min_volume = def.min_volume * VOLUME end
+    if def.max_volume then def.max_volume = def.max_volume * VOLUME end
+  end
+  for _, value in pairs(def) do
+    if type(value) == "table" then scale_sound(value) end
+  end
+end
+local function scale_sounds(t, seen)
+  seen = seen or {}
+  if seen[t] then return end
+  seen[t] = true
+  for key, value in pairs(t) do
+    if type(value) == "table" then
+      if type(key) == "string" and key:find("sound") then scale_sound(value) else scale_sounds(value, seen) end
+    end
+  end
+end
+if VOLUME ~= 1 then
+  scale_sounds(capsule)
+  scale_sounds(rocket)
+end
+-- Explosionen beim Start (control.lua, BLASTS): Kopien mit Praefix ncs-capsule-
+local blasts = {}
+for _, name in pairs({"massive-explosion", "big-explosion", "medium-explosion"}) do
+  local explosion = table.deepcopy(data.raw["explosion"][name])
+  explosion.name = "ncs-capsule-" .. name
+  explosion.hidden = true
+  if VOLUME ~= 1 then scale_sounds(explosion) end
+  table.insert(blasts, explosion)
+end
+data:extend(blasts)
+
 capsule.energy_usage = "150kW"
 capsule.active_energy_usage = "600kW"
 
