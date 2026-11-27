@@ -5,7 +5,9 @@
 -- macht daraus Assembler 2.
 -- Laeuft in data-final-fixes: Die Fass-Rezepte erzeugt das Grundspiel erst in data-updates.
 
-if settings.startup["ncs-rules-variant"].value ~= "hardcore" then return end
+-- Seit 1.0.18 auch in E "Siedler" und F "Nomade" (Meldung: in F kein Oel abfuellbar, Assembler erst spaet).
+local VARIANTS = {["hardcore"] = true, ["super-hardcore"] = true, ["super-duper-hardcore"] = true}
+if not VARIANTS[settings.startup["ncs-rules-variant"].value] then return end
 
 local NAME = "ncs-barrel-filler"
 local CATEGORY = "ncs-barreling"

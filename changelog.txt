@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.18
+Date: 2026-11-27
+  Bugfixes:
+    - Variants E "Settler" and F "Nomad": the barrel station (fills and empties barrels only) is now available and allowed on planets from the start, as in variant D. Before, fluids could not be barreled on planets in these variants.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.17
 Date: 2026-11-27
   Changes:
